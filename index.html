@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>성락교회 대학선교회</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-database.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.23.0/firebase-messaging.js"></script>
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkhrchnoMwgz67nJGi3qETa6EgG1xXjM0",
+            authDomain: "cba-retreat.firebaseapp.com",
+            databaseURL: "https://cba-retreat.firebaseio.com",
+            projectId: "cba-retreat",
+            storageBucket: "cba-retreat.appspot.com",
+            messagingSenderId: "1069252633339"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        var app = Elm.Main.init({
+            node: document.getElementById('root')
+        });
+
+        app.ports.logIn.subscribe(function (value) {
+            firebase.auth().signInWithEmailAndPassword(value.email, value.password).catch(console.error);
+        })
+
+        app.ports.logOut.subscribe(function () {
+            firebase.auth().signOut().catch(console.error);
+        });
+
+        app.ports.sendEmail.subscribe(function (email) {
+            firebase.auth().sendPasswordResetEmail(email).catch(console.error);          
+        });
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if(user && user.uid) {
+                app.ports.onAuthStateChanged.send(user.uid);
+            }
+        });
+
+        firebase.database().ref('Retreat/CBA').on('value', (snapshot) => {
+            const present = snapshot.val();
+            if (present) {
+                firebase.database().ref(`${present}/message`).on('value', (snapshot_m) => {
+                    const m = snapshot_m.val();
+                    if (m) {
+                        app.ports.messages.send(m);
+                    }
+                });
+                firebase.database().ref(`${present}/noti`).on('value', (snapshot_n) => {
+                    const n = snapshot_n.val();
+                    if (n) {
+                        app.ports.noties.send(n);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
