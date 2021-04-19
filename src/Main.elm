@@ -9,6 +9,8 @@ import Browser
 import Types exposing (maybeRouter, Route(..))
 import RockService exposing (getLeaders, getMyInfo)
 import Types exposing (messages)
+import Browser.Navigation exposing (pushUrl)
+import Html exposing (div)
 
 port logIn : Encode.Value -> Cmd msg
 port logOut : () -> Cmd msg
@@ -34,6 +36,7 @@ init _ url key =
     let
         route = maybeRouter url
         msg = case route of
+                Initial -> pushUrl key <| Url.toString { url | path = "/login" }
                 Leaders -> getLeaders
                 _ -> Cmd.none
     in  ({ auth = LoggedOut
@@ -46,7 +49,6 @@ subscriptions : Types.Model -> Sub Msg
 subscriptions model =
     let
         subs model_ = case model_.route of
-                        Leaders -> []
                         RetreatMessages -> [ getMessages <| GotMessages << Decode.decodeValue messages, getNoties <| GotNoties << Decode.decodeValue messages ]
                         _ -> []
     in
@@ -59,5 +61,9 @@ update m model =
 
 
 view : Types.Model -> Browser.Document Msg
-view arg1 =
-    Debug.todo "view"
+view model =
+    case model.route of
+       Login -> let 
+                    bodyLogin = div [] []
+                in { title = "rock-client Elm", body = [bodyLogin] }
+       _ -> { title = "rock-client Elm", body = [] }

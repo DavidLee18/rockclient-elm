@@ -39,12 +39,15 @@ type Msg
     | RetreatRegistered (HttpResult ())
     | SemiSignedUp (HttpResult ())
     | SignedUp (HttpResult ())
+    | SignIn String String
     | UrlChanged Url
     | UrlRequested UrlRequest
     | YouthSignedUp (HttpResult ())
 
 type Route
     = NotFound
+    | Initial
+    | Login
     | SignUp
     | SemiSignUp
     | Leaders
@@ -371,7 +374,8 @@ retreatEditResume resume = Encode.object <| [ ("memberUid", Encode.string resume
                                             ] ++ (Maybe.withDefault [] <| Maybe.map (\list -> [("dayTimeList", Encode.list Encode.string list)]) resume.dayTimeList)
 
 router : Parser (Route -> a) a
-router = Parser.oneOf [ Parser.map Retreat top
+router = Parser.oneOf [ Parser.map Initial top
+                      , Parser.map Login (s "login")
                       , Parser.map SignUp (s "sign-up")
                       , Parser.map SemiSignUp (s "semi-sign-up")
                       , Parser.map YouthSignUp (s "youth" </> s "sign-up")
