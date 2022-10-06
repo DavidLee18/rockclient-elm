@@ -15,6 +15,6 @@
     "@material/mwc-textfield": "^0.20.0"
   },
   "devDependencies": {
-    "elm-review": "^2.4.0"
+    "elm-review": "^2.7.5"
   }
 }
