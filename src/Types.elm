@@ -212,7 +212,7 @@ root = { protocol = Https
        }
 
 defaultHeaders : List Http.Header
-defaultHeaders = [header "Authorization" "Basic YWRtaW46ZGh3bHJybGVoISEh"]
+defaultHeaders = [header "Authorization" "Basic ********************"]
 
 toDepartment : String -> Maybe Department
 toDepartment s = case s of
